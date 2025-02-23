@@ -4,6 +4,7 @@ import { SignJWT } from "jose";
 import { serialize } from "cookie";
 import { connectToDatabase } from "../lib/mongodb";
 import User from "../models/User";
+import { verifyAPI } from "../lib/auth";
 
 const secretKey = new TextEncoder().encode(
   process.env.JWT_SECRET || "!@#$%^&*()"
@@ -110,6 +111,7 @@ export const register = async (req: any, res: any) => {
 };
 
 export const logout = async (req: any, res: any) => {
+  
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
   }
