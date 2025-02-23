@@ -25,7 +25,6 @@ export const login = async (req: any, res: any) => {
   await connectToDatabase();
 
   try {
-    
     const existingUser = await User.findOne({ username });
     if (!existingUser) {
       return res.status(401).json({ message: "Invalid username or password" });
@@ -72,9 +71,9 @@ export const login = async (req: any, res: any) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Something went wrong", error: error});
+      .json({ message: "Something went wrong", error: error });
   }
-}
+};
 
 export const register = async (req: any, res: any) => {
   if (req.method !== "POST") {
@@ -84,7 +83,9 @@ export const register = async (req: any, res: any) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(400).json({ message: "Username and password are required" });
+    return res
+      .status(400)
+      .json({ message: "Username and password are required" });
   }
 
   await connectToDatabase();
@@ -99,10 +100,35 @@ export const register = async (req: any, res: any) => {
     const hashedPassword = hashSync(password, 10);
     const newUser = new User({ username, password: hashedPassword });
     await newUser.save();
-    
-    return res.status(201).json({ message: "User registered successfully" });
 
+    return res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    return res.status(500).json({ message: "Something went wrong", error: error });
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error });
   }
-}
+};
+
+export const logout = async (req: any, res: any) => {
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
+
+  try {
+    
+    const cookie = serialize("token", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      expires: new Date(0),
+    });
+
+    res.setHeader("Set-Cookie", cookie);
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error: any) {
+    res
+      .status(500)
+      .json({ message: "Something went wrong", error: error.message });
+  }
+};

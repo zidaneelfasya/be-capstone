@@ -1,7 +1,10 @@
 import { parse } from "cookie";
 import { jwtVerify } from "jose";
 // import { NextApiRequest, NextApiResponse } from "next";
+import dotenv from "dotenv";
 
+
+dotenv.config();
 const secretKey = new TextEncoder().encode(process.env.JWT_SECRET || "!@#$%^&*()");
 
 export async function verifyToken(token: string) {
