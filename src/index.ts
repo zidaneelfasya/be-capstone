@@ -1,7 +1,8 @@
 // src/index.ts
 import express from 'express';
-import authRoutes from './routes/authRoutes';
-import threadRoutes from './routes/threadRoutes';
+import authRoutes from './routes/authRoute';
+import threadRoutes from './routes/threadRoute';
+import messageRoutes from './routes/messageRoute';
 import dotenv from 'dotenv';
 import { connectToDatabase } from './lib/mongodb';
 
@@ -21,6 +22,8 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/thread', threadRoutes);
+app.use('/api/message', messageRoutes);
+
 
 
 app.listen(port, () => {
