@@ -4,7 +4,7 @@ import { SignJWT } from "jose";
 import { serialize } from "cookie";
 import { connectToDatabase } from "../lib/mongodb";
 import User from "../models/User";
-import { verifyAPI } from "../lib/auth";
+
 
 const secretKey = new TextEncoder().encode(
   process.env.JWT_SECRET || "!@#$%^&*()"
