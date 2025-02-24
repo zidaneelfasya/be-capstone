@@ -10,7 +10,7 @@ export const createThread = async (req: any, res: any) => {
 
     const { title } = req.body;
     const newId = crypto.randomUUID();
-    const newThread = new Thread({ id_thread: newId, title, user_id: me });
+    const newThread = new Thread({ _id: newId, title, user_id: me });
     const savedThread = await newThread.save();
 
     return res
@@ -23,7 +23,7 @@ export const createThread = async (req: any, res: any) => {
   }
 };
 
-export const getThreadsAll = async (req: any, res: any) => {
+export const getAllThreads = async (req: any, res: any) => {
   try {
     const threads = await Thread.find().sort({ updatedAt: -1 });
     return res.status(200).json({
@@ -42,8 +42,6 @@ export const getThreads = async (req: any, res: any) => {
   await connectToDatabase();
   const me = req.user.payload.id;
   try {
-    
-    
     const threads = await Thread.find({
       user_id: me,
     }).sort({ updatedAt: -1 });
