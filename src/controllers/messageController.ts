@@ -11,11 +11,11 @@ export const createMessage = async (req: any, res: any) => {
     if (!thread_id) {
       return res.status(400).json({ message: "Thread ID is required" });
     }
-    const thread = await Thread.findOne({
-      $and: [{ _id: thread_id }, { user_id: req.user.id }],
-    })
-      .populate("user_id", "username _id")
-      .lean();
+    // const thread = await Thread.findOne({
+    //   $and: [{ _id: thread_id }, { user_id: req.user.id }],
+    // })
+    //   .populate("user_id", "username _id")
+    //   .lean();
     const newMessage = new Message({
       role: "user",
       content: content,
@@ -45,7 +45,13 @@ export const getMessages = async (req: any, res: any) => {
 
     const messages = await Message.find({ thread_id: thread_id })
       .sort({ createdAt: 1 }) 
-      .populate("thread_id", "id_thread title");
+      .populate({
+        path: "thread_id", 
+        populate: {
+          path: "user_id", 
+          select: "username _id",
+        },
+      });
 
     return res.status(200).json({ messages });
   } catch (error: any) {

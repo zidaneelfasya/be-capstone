@@ -21,7 +21,8 @@
     "express": "^4.21.2",
     "jose": "^6.0.4",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.10.1"
+    "mongoose": "^8.10.1",
+    "ollama": "^0.5.14"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",

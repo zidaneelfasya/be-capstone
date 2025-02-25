@@ -3,6 +3,7 @@ import express from 'express';
 import authRoutes from './routes/authRoute';
 import threadRoutes from './routes/threadRoute';
 import messageRoutes from './routes/messageRoute';
+import chatRoutes from './routes/chatRoute';
 import dotenv from 'dotenv';
 import { connectToDatabase } from './lib/mongodb';
 
@@ -23,6 +24,8 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/thread', threadRoutes);
 app.use('/api/message', messageRoutes);
+app.use('/api/chat', chatRoutes);
+
 
 
 

@@ -11,7 +11,9 @@ export const createThread = async (req: any, res: any) => {
     const { title } = req.body;
     const newId = crypto.randomUUID();
     const newThread = new Thread({ _id: newId, title, user_id: me });
+    console.log(newId)
     const savedThread = await newThread.save();
+    
 
     return res
       .status(201)
@@ -44,8 +46,8 @@ export const getThreads = async (req: any, res: any) => {
   try {
     const threads = await Thread.find({
       user_id: me,
-    }).sort({ updatedAt: -1 });
-
+    }).populate("user_id", "username _id").sort({ updatedAt: -1 });
+   
     return res.status(200).json({
       message: "Success",
       data: threads,
