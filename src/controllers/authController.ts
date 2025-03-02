@@ -1,13 +1,10 @@
 import { compare, hashSync } from "bcrypt-ts";
-
-import { SignJWT } from "jose";
-import { serialize } from "cookie";
+import { SignJWT, jwtVerify } from "jose";
 import { connectToDatabase } from "../lib/mongodb";
 import User from "../models/User";
 
-
 const secretKey = new TextEncoder().encode(
-  process.env.JWT_SECRET || "!@#$%^&*()"
+  process.env.JWT_SECRET || "mysecretkey"
 );
 
 export const login = async (req: any, res: any) => {
@@ -45,28 +42,12 @@ export const login = async (req: any, res: any) => {
       .setExpirationTime("24h")
       .sign(secretKey);
 
-    const cookie = serialize("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 24 * 60 * 60,
-    });
-
-    const id = serialize("idUser", existingUser._id.toString(), {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 24 * 60 * 60,
-    });
-    res.setHeader("Set-Cookie", [cookie, id]);
-    res.status(200).json({
+    return res.status(200).json({
       message: "Login successful",
-
       data: {
         id: existingUser._id,
         username,
+        token, // Kirim token ke klien
       },
     });
   } catch (error) {
@@ -92,7 +73,6 @@ export const register = async (req: any, res: any) => {
   await connectToDatabase();
 
   try {
-    // Cek apakah user sudah terdaftar
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(409).json({ message: "Username already exists" });
@@ -111,26 +91,31 @@ export const register = async (req: any, res: any) => {
 };
 
 export const logout = async (req: any, res: any) => {
-  
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
   }
 
   try {
-    
-    const cookie = serialize("token", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      expires: new Date(0),
-    });
-
-    res.setHeader("Set-Cookie", cookie);
     res.status(200).json({ message: "Logout successful" });
   } catch (error: any) {
     res
       .status(500)
       .json({ message: "Something went wrong", error: error.message });
+  }
+};
+
+export const checkAuth = async (req: any, res: any) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ isAuthenticated: false });
+    }
+
+    const token = authHeader.split(" ")[1]; // Ambil token dari header
+    const decoded = await jwtVerify(token, secretKey);
+
+    res.status(200).json({ isAuthenticated: true, user: decoded.payload });
+  } catch (error) {
+    res.status(401).json({ isAuthenticated: false });
   }
 };
