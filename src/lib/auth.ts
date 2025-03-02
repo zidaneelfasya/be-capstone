@@ -17,16 +17,17 @@ export async function verifyToken(token: string) {
   }
 }
 export async function verifyAPI(req: any, res: any) {
-  const cookies = parse(req.headers.cookie || "");
-  const token = cookies.token;
-
-  if (!token) {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
+  const token = authHeader.split(" ")[1];
+
   try {
-    const decode = await jwtVerify(token, secretKey); 
-    req.user = decode 
+    const decode = await jwtVerify(token, secretKey);
+    req.user = decode.payload; 
   } catch (error) {
     return res.status(401).json({ message: "Invalid or expired token", error });
   }
