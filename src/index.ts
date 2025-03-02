@@ -6,6 +6,7 @@ import messageRoutes from './routes/messageRoute';
 import chatRoutes from './routes/chatRoute';
 import dotenv from 'dotenv';
 import { connectToDatabase } from './lib/mongodb';
+import cors from "cors"
 
 dotenv.config();
 
@@ -16,6 +17,15 @@ const port = process.env.PORT ;
 // app.use('/user', userRoutes);
 
 // Default route
+
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Allow requests from this origin
+    credentials: true, // Allow credentials (e.g., cookies)
+  })
+);
+
+
 app.use(express.json());
 app.get('/', (req, res) => {
   res.send('Hello, World!');
