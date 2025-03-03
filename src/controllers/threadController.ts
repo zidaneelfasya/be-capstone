@@ -44,10 +44,37 @@ export const getAllThreads = async (req: any, res: any) => {
 
 export const getThreads = async (req: any, res: any) => {
   try {
-    await verifyAPI(req, res);
+    const user = await verifyAPI(req, res);
+    if (!user) {
+      return; 
+    }
+
     await connectToDatabase();
 
-    const me = req.user.id; 
+    const me = user.id; 
+
+    const threads = await Thread.find({ user_id: me })
+      .populate("user_id", "username _id")
+      .sort({ updatedAt: -1 });
+
+    return res.status(200).json({ message: "Success", data: threads });
+  } catch (error: any) {
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error.message });
+  }
+};
+
+export const getThreadsUser = async (req: any, res: any) => {
+  try {
+    // const user = await verifyAPI(req, res);
+    // if (!user) {
+    //   return; 
+    // }
+
+    await connectToDatabase();
+
+    const me = "67bd613b8d72fe59a690d649"; 
 
     const threads = await Thread.find({ user_id: me })
       .populate("user_id", "username _id")
