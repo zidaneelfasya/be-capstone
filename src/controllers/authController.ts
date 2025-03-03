@@ -2,6 +2,7 @@ import { compare, hashSync } from "bcrypt-ts";
 import { SignJWT, jwtVerify } from "jose";
 import { connectToDatabase } from "../lib/mongodb";
 import User from "../models/User";
+import { serialize } from "cookie";
 
 const secretKey = new TextEncoder().encode(
   process.env.JWT_SECRET || "mysecretkey"
@@ -24,6 +25,7 @@ export const login = async (req: any, res: any) => {
 
   try {
     const existingUser = await User.findOne({ username });
+
     if (!existingUser) {
       return res.status(401).json({ message: "Invalid username or password" });
     }
@@ -39,9 +41,25 @@ export const login = async (req: any, res: any) => {
     })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
-      .setExpirationTime("24h")
+      .setExpirationTime("3d")
       .sign(secretKey);
 
+    const cookie = serialize("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 24 * 60 * 60,
+    });
+
+    const id = serialize("idUser", existingUser._id.toString(), {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 24 * 60 * 60,
+    });
+    res.setHeader("Set-Cookie", [cookie, id]);
     return res.status(200).json({
       message: "Login successful",
       data: {
