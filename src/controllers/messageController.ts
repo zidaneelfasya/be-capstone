@@ -37,7 +37,8 @@ export const createMessage = async (req: any, res: any) => {
 export const getMessages = async (req: any, res: any) => {
   try {
     await connectToDatabase();
-    const { thread_id } = req.body; 
+    const { thread_id } = req.query;
+    // console.log(req.body)
     console.log("thread_Id", thread_id);
     if (!thread_id) {
       return res.status(400).json({ message: "Thread ID is required" });
@@ -59,3 +60,5 @@ export const getMessages = async (req: any, res: any) => {
     return res.status(500).json({ message: "Something went wrong", error: error.message });
   }
 };
+
+
